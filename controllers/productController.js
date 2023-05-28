@@ -48,7 +48,7 @@ const createProduct = asyncHandler(async (req, res) => {
     category,
     quantity,
     attributes,
-    image: productImage,
+    image: name + productImage,
     user_id: req.user.id,
   });
   res.status(200).json(product);
@@ -101,13 +101,20 @@ const updateProduct = asyncHandler(async (req, res) => {
     "controllers",
     `uploads/${product.image}`
   );
-  fs.unlink(productDir, (err) => {
-    if (err) {
-      console.error("Error deleting file:", err);
-    } else {
-      console.log("File deleted successfully");
-    }
-  });
+  const newProduct = __dirname.replace(
+    "controllers",
+    `uploads/${req.file.filename}`
+  );
+  if (productDir != newProduct) {
+    fs.unlink(productDir, (err) => {
+      if (err) {
+        console.error("Error deleting file:", err);
+      } else {
+        console.log("File deleted successfully");
+      }
+    });
+  }
+
   const updatedProduct = await Product.findByIdAndUpdate(
     req.params.id,
     {
